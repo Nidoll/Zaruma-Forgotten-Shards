@@ -22,11 +22,16 @@ public class CameraController : MonoBehaviour
 
     private float mouseWheel;
     public float scrollSpeed;
+    private float defaultScrollSpeed;
+    public float smoothingOne;
+    public float smoothingTwo;
+    private bool keepWheel = false;
+    public float keepTime;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        defaultScrollSpeed = scrollSpeed;
     }
 
     // Update is called once per frame
@@ -35,6 +40,12 @@ public class CameraController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.M)){
             mouseMovement = !mouseMovement;
         }
+
+        if(mouseMovement){
+            Camera.main.transform.position += new Vector3(direction.x,0,direction.y) * speed * Time.deltaTime;
+        }
+
+        Camera.main.transform.position += new Vector3(directionKeyBoard.x,0,directionKeyBoard.y) * speed * Time.deltaTime;
 
         checkMousePositionToScreen();
 
@@ -46,11 +57,7 @@ public class CameraController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(mouseMovement){
-            Camera.main.transform.position += new Vector3(direction.x,0,direction.y) * speed * Time.fixedDeltaTime;
-        }
-
-        Camera.main.transform.position += new Vector3(directionKeyBoard.x,0,directionKeyBoard.y) * speed * Time.fixedDeltaTime;
+        
     }
 
     void checkMousePositionToScreen()
@@ -96,9 +103,21 @@ public class CameraController : MonoBehaviour
 
     void CalcRotation()
     {
-        mouseWheel = Input.mouseScrollDelta.y;
+        if(Input.mouseScrollDelta.y == 0 && keepWheel){
+            //keep MouseWheel
+        }else if(Input.mouseScrollDelta.y != 0){
+            StopCoroutine(KeepMouse());
+            scrollSpeed = defaultScrollSpeed;
+            keepWheel = false;
+            mouseWheel = Input.mouseScrollDelta.y;
+            StartCoroutine(KeepMouse());
+        }else{
+            mouseWheel = Input.mouseScrollDelta.y;
+            scrollSpeed = defaultScrollSpeed;
+        }
+        
         transform.position = new Vector3(transform.position.x, 
-                                         Mathf.Clamp(transform.position.y + mouseWheel * scrollSpeed * -10 * Time.fixedDeltaTime, minHight, maxHight), 
+                                         Mathf.Clamp(transform.position.y + mouseWheel * scrollSpeed * (-1) * Time.deltaTime, minHight, maxHight), 
                                          transform.position.z);
         
         float deltaRotation = maxRotation - minRotation;
@@ -106,5 +125,17 @@ public class CameraController : MonoBehaviour
         float currentHight = maxHight - transform.position.y;
         float percent = currentHight / deltaHight;
         transform.eulerAngles = new Vector3(minRotation + deltaRotation * (1-percent), transform.eulerAngles.y, transform.eulerAngles.z);
+    }
+
+    IEnumerator KeepMouse()
+    {
+        keepWheel = true;
+        yield return new WaitForEndOfFrame();
+        scrollSpeed = smoothingOne;
+        yield return new WaitForSeconds(keepTime/2f);
+        scrollSpeed /= smoothingTwo;
+        yield return new WaitForSeconds(keepTime/2f);
+        scrollSpeed = defaultScrollSpeed;
+        keepWheel = false;
     }
 }

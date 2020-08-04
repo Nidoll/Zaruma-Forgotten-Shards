@@ -1019,7 +1019,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 75
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1069,7 +1069,10 @@ MonoBehaviour:
   maxRotation: 60
   minHight: 1
   maxHight: 10
-  scrollSpeed: 2
+  scrollSpeed: 50
+  smoothingOne: 3
+  smoothingTwo: 1.5
+  keepTime: 0.3
 --- !u!43 &982816006
 Mesh:
   m_ObjectHideFlags: 0
