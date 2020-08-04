@@ -7,7 +7,7 @@ using UnityEditor;
 public class CameraControllerEditor : Editor
 {
 
-    SerializedProperty speed, offset, minRotation, maxRotation;
+    SerializedProperty speed, offset, minRotation, maxRotation, minHight, maxHight, scrollSpeed, smoothingOne, smoothingTwo, keepTime;
 
     void OnEnable()
     {
@@ -15,11 +15,16 @@ public class CameraControllerEditor : Editor
         offset = serializedObject.FindProperty("offset");
         minRotation = serializedObject.FindProperty("minRotation");
         maxRotation = serializedObject.FindProperty("maxRotation");
+        minHight = serializedObject.FindProperty("minHight");
+        maxHight = serializedObject.FindProperty("maxHight");
+        scrollSpeed = serializedObject.FindProperty("scrollSpeed");
+        smoothingOne = serializedObject.FindProperty("smoothingOne");
+        smoothingTwo = serializedObject.FindProperty("smoothingTwo");
+        keepTime = serializedObject.FindProperty("keepTime");
     }
 
     public override void OnInspectorGUI()
     {
-        /*
         serializedObject.Update();
 
         EditorGUILayout.LabelField("Camera movement speed:");
@@ -38,9 +43,14 @@ public class CameraControllerEditor : Editor
 
         EditorGUILayout.Space();
 
-        serializedObject.ApplyModifiedProperties();
-        */
+        EditorGUILayout.LabelField("Scrolling propertys:");
+        EditorGUILayout.PropertyField(scrollSpeed);
+        EditorGUILayout.PropertyField(smoothingOne);
+        EditorGUILayout.PropertyField(smoothingTwo);
+        EditorGUILayout.PropertyField(keepTime);
 
-        DrawDefaultInspector();
+        serializedObject.ApplyModifiedProperties();
+
+        //DrawDefaultInspector();
     }
 }
