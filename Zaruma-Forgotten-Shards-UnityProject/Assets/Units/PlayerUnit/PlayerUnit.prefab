@@ -234,6 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 5
   armor: 1
+  radius: 0
   movespeed: 10
   agent: {fileID: 0}
   selected: 0
@@ -242,3 +243,5 @@ MonoBehaviour:
   normalMat: {fileID: 0}
   hoveredMat: {fileID: 0}
   mouseOver: 0
+  clumpMove: 0
+  aggroRange: 0

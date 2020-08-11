@@ -14,20 +14,22 @@ public class EnemyUnit : Unit
     new void Start()
     {
         base.Start();
-        manager.AddEnemyUnit(this);  
+        manager.AddEnemyUnit(this); 
+        agent.SetDestination(patrolCube2.transform.position); 
     }
 
     // Update is called once per frame
-    void Update()
+    new void Update()
     {
-        stop = agent.isStopped;
+        base.Update();
 
-        if(agent.isStopped){
-            if(point1){
-                agent.SetDestination(patrolCube1.transform.position);
-            }else{
-                agent.SetDestination(patrolCube2.transform.position);
-            }
+        if(Vector3.Distance(transform.position, patrolCube2.transform.position) <= 0.9f){
+            agent.SetDestination(patrolCube1.transform.position);
         }
+
+        if(Vector3.Distance(transform.position, patrolCube1.transform.position) <= 0.9f){
+            agent.SetDestination(patrolCube2.transform.position);
+        }
+
     }
 }
