@@ -20,8 +20,11 @@ public class Unit : MonoBehaviour
     protected GameManager manager;
     public bool mouseOver;
     public bool clumpMove;
-    private bool moveCommand;
+    public bool moveCommand;
     public float aggroRange;
+    public bool aggroCheck = true;
+    public bool debugUnit;
+    public bool attacking;
 
     // Start is called before the first frame update
     public void Start()
@@ -33,14 +36,16 @@ public class Unit : MonoBehaviour
         normalMat = manager.normalMat;
         hoveredMat = manager.hoveredMat;
 
+        
+
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if(agent.isStopped){
+    public void Update()
+    { 
+        if(Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(agent.destination.x, agent.destination.z)) <= 0.1f){
             moveCommand = false;
-        }
+        }  
     }
 
     public void SelectUnit()
@@ -86,7 +91,8 @@ public class Unit : MonoBehaviour
 
     public void AttackTarget(Transform target)
     {   
-
+        Debug.Log("Attack Enemy");
+        attacking = true;
     }
 
     public void MoveToTarget(Vector3 target)
@@ -95,10 +101,8 @@ public class Unit : MonoBehaviour
         agent.SetDestination(target);
     }
 
-    void OnTriggerEnter()
-    {
-        
-    }
+    
+
 
 
 
