@@ -14,6 +14,9 @@ public class GameManager : MonoBehaviour
     public List<Unit> eUnits;
     public List<Unit> nUnits;
 
+    //stores all buildings
+    public List<Building> pBuildings;
+
     //stores hovered/selected
     public List<Unit> hoveredUnits;
     public List<Unit> selectedUnits;
@@ -42,6 +45,10 @@ public class GameManager : MonoBehaviour
     public float areaTreshhold;
     public float manualClumpTreshhold;
     private Vector3 centerPoint;
+    private bool attackMoveSelected;
+
+    //Cursor
+    public Texture2D attackMoveCursor;
 
     private void Awake()
     {
@@ -87,11 +94,43 @@ public class GameManager : MonoBehaviour
         }
 
         if(Input.GetMouseButtonDown(1)){
-            MovePlayerUnits();
+
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+
+            if(hoveredUnits.Count > 0){
+                if(hoveredUnits[0] is EnemyUnit){
+                    foreach(PlayerUnit unit in selectedUnits){
+                        unit.AttackTarget(hoveredUnits[0].gameObject);
+                    }
+                }else{
+                    if(attackMoveSelected){
+                        AttackMoveSelectedUnits();
+                    }else{
+                        MovePlayerUnits();
+                    }
+                }
+            }else{
+                if(attackMoveSelected){
+                    AttackMoveSelectedUnits();
+                }else{
+                    MovePlayerUnits();
+                }
+            }
+            
+            if(hitInfo.collider.tag == "Resource"){
+                foreach(PlayerWorker worker in selectedUnits){
+                    worker.StartMining(hitInfo.transform.gameObject);
+                }
+            }
         }
 
         if(Input.GetKeyDown(KeyCode.P)){
             CalcDensityOfUnits(selectedUnits, Vector3.zero, areaTreshhold);
+        }
+
+        if(Input.GetKeyDown(KeyCode.A)){
+            attackMoveSelected = true;
+            Cursor.SetCursor(attackMoveCursor, Vector2.zero, CursorMode.ForceSoftware);
         }
     }
 
@@ -163,19 +202,21 @@ public class GameManager : MonoBehaviour
         List<Unit> removeUnits = new List<Unit>();
         removeUnits.Clear();
 
-        foreach(Unit unit in units){
-            if(Vector3.Distance(unit.agent.destination, destination) > 0.1f){
-                //Debug.Log(Vector3.Distance(unit.agent.destination, destination));
-                removeUnits.Add(unit);
-            }
-        }
+        while(!CalcDensityOfUnits(units, destination, manualClumpTreshhold)){
 
-        foreach(Unit unit in removeUnits){
-            units.Remove(unit);
-        }
+            foreach(Unit unit in units){
+                if(Vector3.Distance(unit.agent.destination, destination) > 0.5f){
+                    //Debug.Log(Vector3.Distance(unit.agent.destination, destination));
+                    removeUnits.Add(unit);
+                }
+            }
+
+            foreach(Unit unit in removeUnits){
+                units.Remove(unit);
+            }
 
         
-        while(!CalcDensityOfUnits(units, destination, manualClumpTreshhold)){
+        
             yield return new WaitForSeconds(0.1f);
             //Debug.Log(CalcDensityOfUnits(units, destination, manualClumpTreshhold));
         }
@@ -211,8 +252,6 @@ public class GameManager : MonoBehaviour
         }else{
             centerOfCirlce = center;
         }
-
-        debugCube2.transform.position = centerOfCirlce;
 
         foreach(Unit unit in units){
             if(Vector3.Distance(unit.transform.position, centerOfCirlce) <= radiusOfCircle){
@@ -416,4 +455,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void RemoveDeadUnit(Unit unit)
+    {
+        if(unit is PlayerUnit){
+            pUnits.Remove(unit);
+        }else if(unit is EnemyUnit){
+            eUnits.Remove(unit);
+        }
+    }
+
+    public void AttackMoveSelectedUnits()
+    {
+        foreach(Unit unit in selectedUnits){
+            unit.AttackMove(mousePosition);
+        }
+        attackMoveSelected = false;
+    }
+
+    public void AddPlayerBuildingToList(Building building)
+    {
+        if(!pBuildings.Contains(building)){
+            pBuildings.Add(building);
+        }
+    }
 }
